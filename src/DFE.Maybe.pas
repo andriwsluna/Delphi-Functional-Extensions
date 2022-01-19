@@ -19,7 +19,7 @@ type
     fHasValue: string;
   public
     constructor Create(const value: T);
-    function Any: Boolean; inline;
+    function IsSome: Boolean; inline;
     function GetValueOrDefault(const default: T): T;
     function OnSome(SomeCallback : TSomeProc) : Maybe<T>; Overload;
     function OnSome(SomeCallback : TSomeConstProc) : Maybe<T>; Overload;
@@ -32,7 +32,7 @@ type
 implementation
 function Maybe<T>.Bind(Left: TSomeBoolFunc; Rigth: TNoneBoolFunc): Boolean;
 begin
-  if self.Any then
+  if self.IsSome then
   BEGIN
     Result := Left(fValue);
   END
@@ -62,13 +62,13 @@ begin
   fValue := value;
   fHasValue := '@';
 end;
-function Maybe<T>.Any: Boolean;
+function Maybe<T>.IsSome: Boolean;
 begin
   Result := fHasValue <> '';
 end;
 function Maybe<T>.GetValueOrDefault(const default: T): T;
 begin
-  if Any then
+  if IsSome then
     Exit(fValue);
   Result := default;
 end;
@@ -79,7 +79,7 @@ begin
 end;
 function Maybe<T>.OnNone(NoneCallback: TNoneProc): Maybe<T>;
 begin
-  if Not self.Any then
+  if Not self.IsSome then
   BEGIN
     NoneCallback;
   END;
@@ -88,7 +88,7 @@ end;
 
 function Maybe<T>.OnSome(SomeCallback: TSomeConstProc): Maybe<T>;
 begin
-  if self.Any then
+  if self.IsSome then
   BEGIN
     SomeCallback(fValue);
   END;
@@ -97,7 +97,7 @@ end;
 
 function Maybe<T>.OnSome(SomeCallback: TSomeProc): Maybe<T>;
 begin
-  if self.Any then
+  if self.IsSome then
   BEGIN
     SomeCallback(fValue);
   END;
@@ -108,7 +108,7 @@ end;
 
 Function Maybe<T>.Bind(Left: TSomeProc; Rigth: TNoneProc) : Maybe<T>;
 begin
-  if self.Any then
+  if self.IsSome then
   BEGIN
     Left(fValue);
   END

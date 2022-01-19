@@ -242,7 +242,7 @@ begin
   begin
     DEC(FIndex);
     Result := Current;
-    if Not result.Any then
+    if Not result.IsSome then
     begin
       INC(FIndex);
     end;
