@@ -20,9 +20,16 @@ Type
     Function  Count() : integer;
     Function  Current : Maybe<ItemType>;
     procedure Reset();
+    Function  Delete(Index : Integer) : Boolean;
+    Procedure Add(item : ItemType);
+    Function  IsEmpty : Boolean;
+    Function  IsNotEmpty : Boolean;
+
     function  ForEach(proc : TForEachFunction<ItemType>) : IIterator<ItemType>;
     function  Map(func : TMapFunction<ItemType>) : IIterator<ItemType>;
     function  Filter(func : TFilterFunction<ItemType>) : IIterator<ItemType>;
+
+
   end;
 
 

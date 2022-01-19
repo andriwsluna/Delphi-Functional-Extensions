@@ -9,9 +9,11 @@ type
   Maybe<T> = record
   private
     type TSomeProc      = reference to procedure(some : T);
+    type TSomeConstProc = reference to procedure(const some : T);
     type TSomeBoolFunc  = reference to function(some : T) : Boolean;
     type TNoneProc      = reference to procedure();
     type TNoneBoolFunc  = reference to function() : Boolean;
+
   strict private
     fValue: T;
     fHasValue: string;
@@ -19,7 +21,8 @@ type
     constructor Create(const value: T);
     function Any: Boolean; inline;
     function GetValueOrDefault(const default: T): T;
-    function OnSome(SomeCallback : TSomeProc) : Maybe<T>;
+    function OnSome(SomeCallback : TSomeProc) : Maybe<T>; Overload;
+    function OnSome(SomeCallback : TSomeConstProc) : Maybe<T>; Overload;
     function OnNone(NoneCallback : TNoneProc) : Maybe<T>;
 
     Function Bind(Left : TSomeProc ; Rigth : TNoneProc = nil) : Maybe<T>; Overload;
@@ -83,6 +86,15 @@ begin
   Result := self;
 end;
 
+function Maybe<T>.OnSome(SomeCallback: TSomeConstProc): Maybe<T>;
+begin
+  if self.Any then
+  BEGIN
+    SomeCallback(fValue);
+  END;
+  Result := self;
+end;
+
 function Maybe<T>.OnSome(SomeCallback: TSomeProc): Maybe<T>;
 begin
   if self.Any then
@@ -91,6 +103,8 @@ begin
   END;
   Result := self;
 end;
+
+
 
 Function Maybe<T>.Bind(Left: TSomeProc; Rigth: TNoneProc) : Maybe<T>;
 begin

@@ -35,6 +35,7 @@ Type
     Function  Current : Maybe<ItemType>; Virtual;
 
     Function Delete(Index : Integer) : Boolean;
+    Procedure Add(item : ItemType);
 
     function  Next(): Maybe<ItemType>; Virtual;
     function  Previous(): Maybe<ItemType>; Virtual;
@@ -50,6 +51,11 @@ Type
   end;
 
 implementation
+
+procedure TIterator<ItemType, SelfType>.Add(item: ItemType);
+begin
+  FItems.Add(item);
+end;
 
 function TIterator<ItemType, SelfType>.Count: integer;
 begin
