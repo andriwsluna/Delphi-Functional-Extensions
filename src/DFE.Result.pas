@@ -11,6 +11,8 @@ type
     type TSuccesCallback = reference to procedure(SuccessResult : TSuccess);
     type TFailCallback   = reference to procedure(FailResult : TFail);
     Procedure Initialize;
+    procedure NewSuccess(const success: TSuccess);
+    procedure NewFail(const fail: TFail);
   strict private
     FSuccess: TSuccess;
     FFail : TFail;
@@ -25,8 +27,7 @@ type
     property IsSuccess: Boolean read FIsSuccess;
     property IsFaill: Boolean read FIsFail;
 
-    procedure NewSuccess(const success: TSuccess);
-    procedure NewFail(const fail: TFail);
+
 
     Function  OnSuccess(callback : TSuccesCallback) : TResult<TSuccess, TFail>;
     Function  OnFail(callback : TFailCallback) : TResult<TSuccess, TFail>;
