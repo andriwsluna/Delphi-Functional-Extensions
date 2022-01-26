@@ -10,10 +10,13 @@ type
   private
     type TSuccesCallback = reference to procedure(SuccessResult : TSuccess);
     type TFailCallback   = reference to procedure(FailResult : TFail);
+    Type TSuccessToCallback<ReturnType> = reference to function(SuccessResult : TSuccess) : ReturnType;
+    Type TFailToCallback<ReturnType> = reference to function(FailResult : TFail) : ReturnType;
     Procedure Initialize;
     procedure NewSuccess(const success: TSuccess);
     procedure NewFail(const fail: TFail);
   strict private
+
     FSuccess: TSuccess;
     FFail : TFail;
     fHasValue: string;
@@ -33,6 +36,11 @@ type
     Function  OnFail(callback : TFailCallback) : TResult<TSuccess, TFail>;
 
     Function  Bind(SuccessCallback : TSuccesCallback ; FailCallback : TFailCallback) : TResult<TSuccess, TFail>;
+    Function  BindTo<ReturnType>
+    (
+      SuccessCallback : TSuccessToCallback<ReturnType> ;
+      FailCallback : TFailToCallback<ReturnType>
+    ) : ReturnType;
 
 
 
@@ -53,6 +61,20 @@ function TResult<TSuccess, TFail>.Bind(SuccessCallback: TSuccesCallback;
   FailCallback: TFailCallback): TResult<TSuccess, TFail>;
 begin
   result := OnSuccess(SuccessCallback).OnFail(FailCallback);
+end;
+
+function TResult<TSuccess, TFail>.BindTo<ReturnType>(
+  SuccessCallback: TSuccessToCallback<ReturnType>;
+  FailCallback: TFailToCallback<ReturnType>): ReturnType;
+begin
+  if self.IsSuccess then
+  begin
+    Result := SuccessCallback(FSuccess)
+  end
+  else
+  begin
+    Result := FailCallback(Ffail)
+  end;
 end;
 
 class operator TResult<TSuccess, TFail>.Implicit(const value: TFail): TResult<TSuccess, TFail>;
