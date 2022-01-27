@@ -261,7 +261,7 @@ begin
     Reset;
     stop := false;
     repeat
-      stop := next.bind
+      stop := next.bindTo<Boolean>
       (
         function(item : ItemType) : boolean
         begin
@@ -298,7 +298,7 @@ begin
     Reset;
     stop := false;
     repeat
-      stop := next.bind
+      stop := next.bindTo<Boolean>
       (
         function(item : ItemType) : boolean
         begin
@@ -310,7 +310,7 @@ begin
 
           result := false;
         end,
-        function() : boolean
+        Function() : Boolean
         begin
           result := true;
         end
@@ -333,7 +333,7 @@ begin
     Reset;
     stop := false;
     repeat
-      stop := next.bind
+      stop := next.bindTo<Boolean>
       (
         function(item : ItemType) : boolean
         begin
@@ -349,10 +349,11 @@ begin
           );
           result := false;
         end,
-        function() : boolean
+        Function() : Boolean
         begin
           result := true;
         end
+
       );
 
     until stop;

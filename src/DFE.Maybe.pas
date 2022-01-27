@@ -10,9 +10,11 @@ type
   private
     type TSomeProc      = reference to procedure(some : T);
     type TSomeConstProc = reference to procedure(const some : T);
-    type TSomeBoolFunc  = reference to function(some : T) : Boolean;
     type TNoneProc      = reference to procedure();
-    type TNoneBoolFunc  = reference to function() : Boolean;
+
+    Type TSomeProcReturn<ReturnType> = reference to function(some : T) : ReturnType;
+    Type TSomeConstProcReturn<ReturnType> = reference to function(Const some : T) : ReturnType;
+    Type TNoneProcReturn<ReturnType> = reference to function() : ReturnType;
 
   strict private
     fValue: T;
@@ -25,27 +27,72 @@ type
     function OnSome(SomeCallback : TSomeConstProc) : Maybe<T>; Overload;
     function OnNone(NoneCallback : TNoneProc) : Maybe<T>;
 
-    Function Bind(Left : TSomeProc ; Rigth : TNoneProc = nil) : Maybe<T>; Overload;
-    Function Bind(Left : TSomeBoolFunc ; Rigth : TNoneBoolFunc = nil) : Boolean; Overload;
+    Function Bind(Left : TSomeProc ; Rigth : TNoneProc = nil) : Maybe<T>;  Overload;
+    Function Bind(Left : TSomeConstProc ; Rigth : TNoneProc = nil) : Maybe<T>; Overload;
+
+    Function BindTo<ReturnType>(Left : TSomeProcReturn<ReturnType> ; Rigth : TNoneProcReturn<ReturnType>) : ReturnType; Overload;
+    Function BindTo<ReturnType>(Left : TSomeConstProcReturn<ReturnType> ; Rigth : TNoneProcReturn<ReturnType>) : ReturnType; Overload;
+    Function BindToWith<ReturnType>(Left : ReturnType ; Rigth : ReturnType) : ReturnType; Overload;
+
     class operator Implicit(const value: T): Maybe<T>;
   end;
 implementation
-function Maybe<T>.Bind(Left: TSomeBoolFunc; Rigth: TNoneBoolFunc): Boolean;
+
+
+function Maybe<T>.BindTo<ReturnType>(Left: TSomeProcReturn<ReturnType>;
+  Rigth: TNoneProcReturn<ReturnType>): ReturnType;
 begin
   if self.IsSome then
   BEGIN
     Result := Left(fValue);
   END
   else
-  if assigned(Rigth) then
   begin
     Result := Rigth();
-  end
+  end;
+end;
+
+
+
+function Maybe<T>.Bind(Left: TSomeConstProc; Rigth: TNoneProc): Maybe<T>;
+begin
+  if self.IsSome then
+  BEGIN
+    Left(fValue);
+  END
   else
+  if assigned(Rigth) then
   begin
-    result := false;
+    Rigth();
   end;
 
+  Result := self;
+end;
+
+function Maybe<T>.BindTo<ReturnType>(Left: TSomeConstProcReturn<ReturnType>;
+  Rigth: TNoneProcReturn<ReturnType>): ReturnType;
+begin
+  if self.IsSome then
+  BEGIN
+    Result := Left(fValue);
+  END
+  else
+  begin
+    Result := Rigth;
+  end;
+end;
+
+
+function Maybe<T>.BindToWith<ReturnType>(Left, Rigth: ReturnType): ReturnType;
+begin
+  if self.IsSome then
+  BEGIN
+    Result := Left;
+  END
+  else
+  begin
+    Result := Rigth;
+  end;
 end;
 
 constructor Maybe<T>.Create(const value: T);
