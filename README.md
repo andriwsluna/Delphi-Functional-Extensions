@@ -11,5 +11,5 @@ Write more concise and reusable code. Less "Ifs" and more reactive events.
   - Iterator
 
 ## How to use?
-Folow this tutorial.
+Folow this [tutorial](https://github.com/andriwsluna/Delphi-Functional-Extensions/wiki).
 
