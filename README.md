@@ -7,7 +7,7 @@ Write more concise and reusable code. Less "Ifs" and more reactive events.
 
 ## List of resources
   - [Maybe monad](https://github.com/andriwsluna/Delphi-Functional-Extensions/wiki/Maybe)
-  - Result<Ok,Err>
+  - [Result<Ok, Err>](https://github.com/andriwsluna/Delphi-Functional-Extensions/wiki/TResult)
   - Iterator
 
 ## How to use?
