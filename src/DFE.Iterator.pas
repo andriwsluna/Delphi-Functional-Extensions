@@ -8,13 +8,13 @@ uses
   DFE.Interfaces;
 
 Type
-  TIterator<ItemType :  IInterface ; SelfType : IIterator<ItemType>> =
+  TIterator<ItemType :  IInterface> =
   class(TinterfacedObject, IIterator<ItemType>)
 
   private
-    Procedure ProcessForEach(proc : TForEachFunction<ItemType> ; iter : TIterator<ItemType , SelfType>);
-    Procedure ProcessMap(func : TMapFunction<ItemType> ; iter : TIterator<ItemType , SelfType>);
-    Procedure ProcessFilter(func : TFilterFunction<ItemType> ; iter : TIterator<ItemType , SelfType>);
+    Procedure ProcessForEach(proc : TForEachFunction<ItemType> ; iter : TIterator<ItemType>);
+    Procedure ProcessMap(func : TMapFunction<ItemType> ; iter : TIterator<ItemType>);
+    Procedure ProcessFilter(func : TFilterFunction<ItemType> ; iter : TIterator<ItemType>);
   protected
     FIndex : integer;
     FItems : Tlist<ItemType>;
@@ -22,8 +22,6 @@ Type
 
     Procedure Initialize(); Virtual;
     Procedure Finalize(); Virtual;
-    Function  NewIteratorConstructor : SelfType; Virtual;
-
   public
     Constructor Create(); Reintroduce; Virtual;
     Destructor  Destroy(); Override;
@@ -41,28 +39,46 @@ Type
     function  Previous(): Maybe<ItemType>; Virtual;
     function  First(): Maybe<ItemType>; Virtual;
     function  Last(): Maybe<ItemType>; Virtual;
+    function  GetItem(index : integer): Maybe<ItemType>; Virtual;
+    Function  Items : Tlist<ItemType>;
     procedure Reset(); Virtual;
     function  ForEach(proc : TForEachFunction<ItemType>) : IIterator<ItemType>;
-    function  LocalForEach(proc : TForEachFunction<ItemType>) : SelfType;
     function  Map(func : TMapFunction<ItemType>) : IIterator<ItemType>;
-    function  LocalMap(func : TMapFunction<ItemType>) : SelfType;
     function  Filter(func : TFilterFunction<ItemType>) : IIterator<ItemType>;
-    function  LocalFilter(func : TFilterFunction<ItemType>) : SelfType;
+
+
   end;
+
+  TIteratorEx<ItemType :  IInterface ; SelfType : IIterator<ItemType>> =
+  class(TIterator<ItemType>, IIterator<ItemType>)
+
+  private
+  protected
+    Function  NewIteratorConstructor : SelfType; Virtual; //Abstract
+
+    function  LocalForEach(proc : TForEachFunction<ItemType>) : SelfType;
+    function  LocalMap(func : TMapFunction<ItemType>) : SelfType;
+    function  LocalFilter(func : TFilterFunction<ItemType>) : SelfType;
+  public
+
+  public
+
+  end;
+
 
 implementation
 
-procedure TIterator<ItemType, SelfType>.Add(item: ItemType);
+procedure TIterator<ItemType>.Add(item: ItemType);
 begin
   FItems.Add(item);
 end;
 
-function TIterator<ItemType, SelfType>.Count: integer;
+function TIterator<ItemType>.Count: integer;
 begin
    Result := FItems.Count;
 end;
 
-constructor TIterator<ItemType, SelfType>.Create;
+constructor TIterator<ItemType>.Create;
 begin
   inherited;
   Initialize();
@@ -70,7 +86,7 @@ end;
 
 
 
-function TIterator<ItemType, SelfType>.Current: Maybe<ItemType>;
+function TIterator<ItemType>.Current: Maybe<ItemType>;
 begin
   Result := nil;
   if IsNotEmpty then
@@ -86,7 +102,7 @@ begin
   end;
 end;
 
-function TIterator<ItemType, SelfType>.Delete(Index: Integer): Boolean;
+function TIterator<ItemType>.Delete(Index: Integer): Boolean;
 begin
   Result := False;
   Try
@@ -100,18 +116,18 @@ begin
   End;
 end;
 
-destructor TIterator<ItemType, SelfType>.Destroy;
+destructor TIterator<ItemType>.Destroy;
 begin
   Finalize();
   inherited;
 end;
 
-function TIterator<ItemType, SelfType>.Filter(
+function TIterator<ItemType>.Filter(
   func: TFilterFunction<ItemType>): IIterator<ItemType>;
 var
-  NewIterator : TIterator<ItemType, SelfType>;
+  NewIterator : TIterator<ItemType>;
 begin
-  NewIterator := TIterator<ItemType, SelfType>.Create;
+  NewIterator := TIterator<ItemType>.Create;
   if assigned(func) then
   begin
     ProcessFilter(func, NewIterator);
@@ -120,12 +136,13 @@ begin
 end;
 
 
-procedure TIterator<ItemType, SelfType>.Finalize;
+
+procedure TIterator<ItemType>.Finalize;
 begin
   FItems.Free;
 end;
 
-function TIterator<ItemType, SelfType>.First: Maybe<ItemType>;
+function TIterator<ItemType>.First: Maybe<ItemType>;
 begin
   if IsNotEmpty then
   begin
@@ -134,7 +151,7 @@ begin
   end;
 end;
 
-function TIterator<ItemType, SelfType>.ForEach(
+function TIterator<ItemType>.ForEach(
   proc: TForEachFunction<ItemType>): IIterator<ItemType>;
 begin
   if assigned(proc) then
@@ -145,23 +162,37 @@ begin
   Result := Self;
 end;
 
-procedure TIterator<ItemType, SelfType>.Initialize;
+procedure TIterator<ItemType>.Initialize;
 begin
   FIndex := -1;
   FItems := Tlist<ItemType>.Create;
 end;
 
-function TIterator<ItemType, SelfType>.IsEmpty: Boolean;
+function TIterator<ItemType>.IsEmpty: Boolean;
 begin
   Result := Count <= 0;
 end;
 
-function TIterator<ItemType, SelfType>.IsNotEmpty: Boolean;
+function TIterator<ItemType>.IsNotEmpty: Boolean;
 begin
   Result:= not IsEmpty;
 end;
 
-function TIterator<ItemType, SelfType>.Last: Maybe<ItemType>;
+function TIterator<ItemType>.Items: Tlist<ItemType>;
+begin
+  Result := self.FItems;
+end;
+
+function TIterator<ItemType>.GetItem(index: integer): Maybe<ItemType>;
+begin
+  if IsNotEmpty then
+  begin
+    FIndex := index;
+    Result := Current;
+  end;
+end;
+
+function TIterator<ItemType>.Last: Maybe<ItemType>;
 begin
   if IsNotEmpty then
   begin
@@ -170,51 +201,15 @@ begin
   end;
 end;
 
-function TIterator<ItemType, SelfType>.LocalFilter(
-  func: TFilterFunction<ItemType>): SelfType;
-var
-  NewIterator : SelfType;
-begin
-  NewIterator := self.NewIteratorConstructor;
-  if assigned(func) then
-  begin
-    ProcessFilter(func, NewIterator as TIterator<ItemType, SelfType>);
-  end;
-  Result := NewIterator;
-end;
 
-function TIterator<ItemType, SelfType>.LocalForEach(
-  proc: TForEachFunction<ItemType>): SelfType;
-var
-  NewIterator : SelfType;
-begin
-  NewIterator := self.NewIteratorConstructor;
-  if assigned(proc) then
-  begin
-    ProcessForEach(proc, NewIterator as TIterator<ItemType, SelfType>);
-  end;
-  Result := NewIterator;
-end;
 
-function TIterator<ItemType, SelfType>.LocalMap(
-  func: TMapFunction<ItemType>): SelfType;
-var
-  NewIterator : SelfType;
-begin
-  NewIterator := self.NewIteratorConstructor;
-  if assigned(func) then
-  begin
-    ProcessMap(func, NewIterator as TIterator<ItemType, SelfType>);
-  end;
-  Result := NewIterator;
-end;
 
-function TIterator<ItemType, SelfType>.Map(
+function TIterator<ItemType>.Map(
   func: TMapFunction<ItemType>): IIterator<ItemType>;
 var
-  NewIterator : TIterator<ItemType, SelfType>;
+  NewIterator : TIterator<ItemType>;
 begin
-  NewIterator := TIterator<ItemType, SelfType>.Create;
+  NewIterator := TIterator<ItemType>.Create;
   if assigned(func) then
   begin
     ProcessMap(func, NewIterator);
@@ -222,12 +217,8 @@ begin
   Result := NewIterator;
 end;
 
-function TIterator<ItemType, SelfType>.NewIteratorConstructor: SelfType;
-begin
-  result := nil;
-end;
 
-function TIterator<ItemType, SelfType>.Next: Maybe<ItemType>;
+function TIterator<ItemType>.Next: Maybe<ItemType>;
 begin
   if IsNotEmpty then
   begin
@@ -236,7 +227,7 @@ begin
   end;
 end;
 
-function TIterator<ItemType, SelfType>.Previous: Maybe<ItemType>;
+function TIterator<ItemType>.Previous: Maybe<ItemType>;
 begin
   if IsNotEmpty then
   begin
@@ -249,11 +240,11 @@ begin
   end;
 end;
 
-procedure TIterator<ItemType, SelfType>.ProcessFilter(
-  func: TFilterFunction<ItemType>; iter: TIterator<ItemType, SelfType>);
+procedure TIterator<ItemType>.ProcessFilter(
+  func: TFilterFunction<ItemType>; iter: TIterator<ItemType>);
 var
   stop : boolean;
-  iteration : TIterator<ItemType , SelfType>;
+  iteration : TIterator<ItemType>;
 begin
   iteration := iter;
   if IsNotEmpty then
@@ -286,11 +277,11 @@ begin
   end;
 end;
 
-procedure TIterator<ItemType, SelfType>.ProcessForEach(
-  proc: TForEachFunction<ItemType> ; iter : TIterator<ItemType , SelfType>);
+procedure TIterator<ItemType>.ProcessForEach(
+  proc: TForEachFunction<ItemType> ; iter : TIterator<ItemType>);
 var
   stop : boolean;
-  iteration : TIterator<ItemType , SelfType>;
+  iteration : TIterator<ItemType>;
 begin
   iteration := iter;
   if IsNotEmpty then
@@ -321,11 +312,11 @@ begin
   end;
 end;
 
-procedure TIterator<ItemType, SelfType>.ProcessMap(func: TMapFunction<ItemType>;
-  iter: TIterator<ItemType, SelfType>);
+procedure TIterator<ItemType>.ProcessMap(func: TMapFunction<ItemType>;
+  iter: TIterator<ItemType>);
 var
   stop : boolean;
-  iteration : TIterator<ItemType , SelfType>;
+  iteration : TIterator<ItemType>;
 begin
   iteration := iter;
   if IsNotEmpty then
@@ -361,9 +352,54 @@ begin
   end;
 end;
 
-procedure TIterator<ItemType, SelfType>.Reset;
+procedure TIterator<ItemType>.Reset;
 begin
   FIndex := -1;
+end;
+
+{ TIteratorEx<ItemType, SelfType> }
+function TIteratorEx<ItemType, SelfType>.LocalFilter(
+  func: TFilterFunction<ItemType>): SelfType;
+var
+  NewIterator : SelfType;
+begin
+  NewIterator := self.NewIteratorConstructor;
+  if assigned(func) then
+  begin
+    ProcessFilter(func, NewIterator as TIterator<ItemType>);
+  end;
+  Result := NewIterator;
+end;
+
+function TIteratorEx<ItemType, SelfType>.LocalForEach(
+  proc: TForEachFunction<ItemType>): SelfType;
+var
+  NewIterator : SelfType;
+begin
+  NewIterator := self.NewIteratorConstructor;
+  if assigned(proc) then
+  begin
+    ProcessForEach(proc, NewIterator as TIterator<ItemType>);
+  end;
+  Result := NewIterator;
+end;
+
+function TIteratorEx<ItemType, SelfType>.LocalMap(
+  func: TMapFunction<ItemType>): SelfType;
+var
+  NewIterator : SelfType;
+begin
+  NewIterator := self.NewIteratorConstructor;
+  if assigned(func) then
+  begin
+    ProcessMap(func, NewIterator as TIterator<ItemType>);
+  end;
+  Result := NewIterator;
+end;
+
+function TIteratorEx<ItemType, SelfType>.NewIteratorConstructor: SelfType;
+begin
+  Result := nil;
 end;
 
 end.
