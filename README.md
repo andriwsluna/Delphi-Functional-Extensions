@@ -6,7 +6,7 @@ This package contains classes that implement some concepts of the functional pro
 Write more concise and reusable code. Less "Ifs" and more reactive events.
 
 ## List of resources
-  - Maybe monad
+  - [Maybe monad](https://github.com/andriwsluna/Delphi-Functional-Extensions/wiki/Maybe)
   - Result<Ok,Err>
   - Iterator
 
