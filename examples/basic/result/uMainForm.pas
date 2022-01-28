@@ -9,7 +9,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
 
 type
-  TMyDatast = Class(TDataSet)
+  TMyDataset = Class(TDataSet)
   public
     function GetRecord(Buffer: TRecBuf; GetMode: TGetMode; DoCheck: Boolean): TGetResult; overload; override;
     function GetRecord(Buffer: TRecordBuffer; GetMode: TGetMode; DoCheck: Boolean): TGetResult; overload; override;
@@ -172,13 +172,12 @@ function TForm1.OpenSQL(SQL: String): TResult<TDataset, string>;
 begin
   if LowerCase(SQL) = 'select * from master' then
   begin
-    Result := TMyDatast.Create(nil);
+    Result := TMyDataset.Create(nil);
   end
   else
   begin
     result := 'Syntax error.';
   end;
-
 end;
 
 function TForm1.OpenSqlAndVerifyDataset: boolean;
@@ -213,45 +212,45 @@ begin
   Result := true;
 end;
 
-{ TMyDatast }
+{ TMyDataset }
 
-function TMyDatast.GetRecord(Buffer: TRecBuf; GetMode: TGetMode;
+function TMyDataset.GetRecord(Buffer: TRecBuf; GetMode: TGetMode;
   DoCheck: Boolean): TGetResult;
 begin
   result := grOK;
 end;
 
-function TMyDatast.GetRecord(Buffer: TRecordBuffer; GetMode: TGetMode;
+function TMyDataset.GetRecord(Buffer: TRecordBuffer; GetMode: TGetMode;
   DoCheck: Boolean): TGetResult;
 begin
   result := grOK;
 end;
 
-procedure TMyDatast.InternalClose;
+procedure TMyDataset.InternalClose;
 begin
   inherited;
 
 end;
 
-procedure TMyDatast.InternalHandleException;
+procedure TMyDataset.InternalHandleException;
 begin
   inherited;
 
 end;
 
-procedure TMyDatast.InternalInitFieldDefs;
+procedure TMyDataset.InternalInitFieldDefs;
 begin
   inherited;
 
 end;
 
-procedure TMyDatast.InternalOpen;
+procedure TMyDataset.InternalOpen;
 begin
   inherited;
 
 end;
 
-function TMyDatast.IsCursorOpen: Boolean;
+function TMyDataset.IsCursorOpen: Boolean;
 begin
   Result := false;
 end;
