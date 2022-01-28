@@ -1,7 +1,7 @@
 {
 	"name": "delphi-functional-extensions",
 	"description": "delphi-functional-extensions",
-	"version": "0.0.1-alpha",
+	"version": "0.0.2-alpha",
 	"homepage": "https://github.com/andriwsluna/Delphi-Functional-Extensions",
 	"mainsrc": "./src",
 	"projects": [],
