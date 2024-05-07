@@ -9,6 +9,7 @@ type
   TResult<TSuccess, TFail> = record
   private
     type TSuccesCallback = reference to procedure(SuccessResult : TSuccess);
+    type TCallback = reference to procedure();
     type TFailCallback   = reference to procedure(FailResult : TFail);
     Type TSuccessToCallback<ReturnType> = reference to function(SuccessResult : TSuccess) : ReturnType;
     Type TFailToCallback<ReturnType> = reference to function(FailResult : TFail) : ReturnType;
@@ -32,8 +33,10 @@ type
 
 
 
-    Function  OnSuccess(callback : TSuccesCallback) : TResult<TSuccess, TFail>;
-    Function  OnFail(callback : TFailCallback) : TResult<TSuccess, TFail>;
+    Function  OnSuccess(callback : TSuccesCallback) : TResult<TSuccess, TFail>; Overload;
+    Function  OnSuccess(callback : TCallback) : TResult<TSuccess, TFail>; Overload;
+    Function  OnFail(callback : TFailCallback) : TResult<TSuccess, TFail>; Overload;
+    Function  OnFail(callback : TCallback) : TResult<TSuccess, TFail>; Overload;
 
     Function  Bind(SuccessCallback : TSuccesCallback ; FailCallback : TFailCallback) : TResult<TSuccess, TFail>;
     Function  BindTo<ReturnType>
@@ -127,6 +130,33 @@ begin
   END;
 
   Result := self;
+end;
+
+function TResult<TSuccess, TFail>.OnFail(
+  callback: TCallback): TResult<TSuccess, TFail>;
+begin
+  if self.IsFaill then
+  BEGIN
+    if assigned(callback) then
+    begin
+      callback();
+    end;
+
+
+  END;
+
+  Result := self;
+end;
+
+function TResult<TSuccess, TFail>.OnSuccess(callback : TCallback): TResult<TSuccess, TFail>;
+begin
+  if Assigned(callback) then
+  begin
+    callback();
+  end;
+
+  Result := Self;
+
 end;
 
 function TResult<TSuccess, TFail>.OnSuccess(

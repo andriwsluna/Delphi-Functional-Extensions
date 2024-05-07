@@ -32,13 +32,7 @@ Type
     function  ForEach(proc : TForEachFunction<ItemType>) : IIterator<ItemType>;
     function  Map(func : TMapFunction<ItemType>) : IIterator<ItemType>;
     function  Filter(func : TFilterFunction<ItemType>) : IIterator<ItemType>;
-
-
-
   end;
-
-
-
 implementation
 
 end.

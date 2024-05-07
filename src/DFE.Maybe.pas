@@ -97,7 +97,9 @@ end;
 
 constructor Maybe<T>.Create(const value: T);
 begin
- case GetTypeKind(T) of
+  fHasValue := '';
+
+  case GetTypeKind(T) of
     tkClass, tkInterface, tkClassRef, tkPointer, tkProcedure:
     if (PPointer(@value)^ = nil) then
     begin
@@ -123,6 +125,20 @@ end;
 class operator Maybe<T>.Implicit(const value: T): Maybe<T>;
 begin
   Result := Maybe<T>.Create(value);
+
+  var x := GetTypeKind(T);
+  case GetTypeKind(T) of
+    tkClass, tkInterface, tkClassRef, tkPointer, tkProcedure:
+    if (PPointer(@value)^ = nil) then
+    begin
+      Result.fHasValue := '';
+      exit;
+    end;
+
+  end;
+  Result.fValue := value;
+  Result.fHasValue := '@';
+
 end;
 function Maybe<T>.OnNone(NoneCallback: TNoneProc): Maybe<T>;
 begin
