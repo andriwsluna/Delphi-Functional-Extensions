@@ -3,8 +3,10 @@
 	"description": "delphi-functional-extensions",
 	"version": "0.0.2-alpha",
 	"homepage": "https://github.com/andriwsluna/Delphi-Functional-Extensions",
-	"mainsrc": "./src",
-	"projects": [],
+	"mainsrc": "./lib",
+	"projects": [
+		"packages/DFE.dpro"
+	],
 	"dependencies": {
 
 	}
