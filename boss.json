@@ -5,7 +5,7 @@
 	"homepage": "https://github.com/andriwsluna/Delphi-Functional-Extensions",
 	"mainsrc": "./lib",
 	"projects": [
-		"packages/DFE.dpro"
+		"packages/DFE.dproj"
 	],
 	"dependencies": {
 
